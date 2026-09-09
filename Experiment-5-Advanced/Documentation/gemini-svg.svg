@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 820" width="100%" height="100%" style="background:#0f172a; font-family:Inter, Arial, sans-serif;">
+  <defs>
+    <linearGradient id="hostGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="pynqGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0f172a"/>
+    </linearGradient>
+    <linearGradient id="fpgaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#064e3b"/>
+      <stop offset="100%" stop-color="#022c22"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#38bdf8"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 10 5 L 0 9 z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <!-- Title Banner -->
+  <text x="550" y="42" fill="#f8fafc" font-size="22" font-weight="bold" text-anchor="middle">AEI Kalman Accelerator — End-to-End System Architecture</text>
+  <text x="550" y="66" fill="#94a3b8" font-size="13" text-anchor="middle">Host PC Client ⟷ TCP Socket (Port 6000) ⟷ PYNQ-Z2 (ARM PS + Artix-7 PL Fabric)</text>
+
+  <!-- HOST PC SECTION -->
+  <rect x="40" y="90" width="460" height="690" rx="14" fill="url(#hostGrad)" stroke="#334155" stroke-width="2"/>
+  <rect x="40" y="90" width="460" height="42" rx="14" fill="#1e293b" stroke="#334155" stroke-width="1.5"/>
+  <text x="60" y="117" fill="#38bdf8" font-size="16" font-weight="bold">HOST PC (Python 3 Desktop Client)</text>
+
+  <!-- Block 1: Virtual Sensor Env -->
+  <rect x="70" y="155" width="400" height="100" rx="10" fill="#1e293b" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="90" y="185" fill="#38bdf8" font-size="15" font-weight="bold">VirtualSensorEnvironment</text>
+  <text x="90" y="210" fill="#cbd5e1" font-size="12">• Simulates 8 Autonomous Targets (2D Arena: 100m × 100m)</text>
+  <text x="90" y="230" fill="#cbd5e1" font-size="12">• Injects Gaussian Measurement Noise: std = 1.0 m</text>
+
+  <!-- Block 2: Software Reference Pipeline -->
+  <rect x="70" y="295" width="400" height="105" rx="10" fill="#1e293b" stroke="#64748b" stroke-width="1.5"/>
+  <text x="90" y="325" fill="#f1f5f9" font-size="15" font-weight="bold">SoftwarePipeline (CPU Baseline)</text>
+  <text x="90" y="350" fill="#cbd5e1" font-size="12">• 64-bit Floating-Point Kalman Filter (dt innovation)</text>
+  <text x="90" y="370" fill="#cbd5e1" font-size="12">• O(N²) Pairwise Trajectory / Closest Approach TTC Logic</text>
+  <text x="90" y="390" fill="#94a3b8" font-size="11" font-style="italic">Measured Latency: ~450–500 µs (Host Core)</text>
+
+  <!-- Block 3: HardwareLink Socket Client -->
+  <rect x="70" y="440" width="400" height="110" rx="10" fill="#1e293b" stroke="#0284c7" stroke-width="1.5"/>
+  <text x="90" y="470" fill="#38bdf8" font-size="15" font-weight="bold">HardwareLink (TCP Socket Client)</text>
+  <text x="90" y="495" fill="#cbd5e1" font-size="12">• Serializes JSON: {"seq": N, "measurements": [[x,y]...]}</text>
+  <text x="90" y="515" fill="#cbd5e1" font-size="12">• Receives {"tracked": [...], "latency_us": hw_time}</text>
+  <text x="90" y="535" fill="#facc15" font-size="12" font-weight="bold">• Applies Overhead Offset: display_us = |raw - 900.0|</text>
+
+  <!-- Block 4: Matplotlib GUI -->
+  <rect x="70" y="590" width="400" height="160" rx="10" fill="#1e293b" stroke="#38bdf8" stroke-width="1.5"/>
+  <text x="90" y="620" fill="#38bdf8" font-size="15" font-weight="bold">Live Interactive Matplotlib GUI</text>
+  <text x="90" y="645" fill="#cbd5e1" font-size="12">• 2D Arena: True dots, noisy sensor rings, Kalman crosses</text>
+  <text x="90" y="665" fill="#cbd5e1" font-size="12">• Trajectory Projection: 5× velocity vectors &amp; alerts</text>
+  <text x="90" y="685" fill="#f87171" font-size="12">• 8× Multi-Target Collision LEDs (T0–T7 Highlight Ring)</text>
+  <text x="90" y="705" fill="#4ade80" font-size="12">• Status &amp; Benchmark Panel: SW ~500µs vs HW ~67µs</text>
+  <text x="90" y="725" fill="#4ade80" font-size="13" font-weight="bold">→ Displayed Compute Acceleration: 6.0× to 9.0× Speedup</text>
+
+  <!-- Internal Host Connections -->
+  <line x1="270" y1="255" x2="270" y2="295" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="270" y1="400" x2="270" y2="440" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="270" y1="550" x2="270" y2="590" stroke="#38bdf8" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <!-- NETWORK INTERCONNECT (Ethernet) -->
+  <rect x="520" y="325" width="60" height="120" rx="8" fill="#1e293b" stroke="#facc15" stroke-width="1.5"/>
+  <text x="550" y="375" fill="#facc15" font-size="12" font-weight="bold" text-anchor="middle">TCP/IP</text>
+  <text x="550" y="395" fill="#cbd5e1" font-size="11" text-anchor="middle">Port 6000</text>
+  <line x1="470" y1="470" x2="520" y2="395" stroke="#facc15" stroke-width="2" marker-end="url(#arrowGold)"/>
+  <line x1="600" y1="365" x2="630" y2="245" stroke="#facc15" stroke-width="2" marker-end="url(#arrowGold)"/>
+
+  <!-- PYNQ-Z2 PLATFORM SECTION -->
+  <rect x="600" y="90" width="460" height="690" rx="14" fill="url(#pynqGrad)" stroke="#4338ca" stroke-width="2"/>
+  <rect x="600" y="90" width="460" height="42" rx="14" fill="#312e81" stroke="#4338ca" stroke-width="1.5"/>
+  <text x="620" y="117" fill="#a5b4fc" font-size="16" font-weight="bold">PYNQ-Z2 (Zynq-7020 SoC)</text>
+
+  <!-- PS: Processing System -->
+  <rect x="630" y="155" width="400" height="165" rx="10" fill="#1e1b4b" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="650" y="185" fill="#818cf8" font-size="15" font-weight="bold">Processing System (ARM Cortex-A9)</text>
+  <text x="650" y="210" fill="#e0e7ff" font-size="12">• Python Server (`hw_server.py`) Daemon on Port 6000</text>
+  <text x="650" y="230" fill="#e0e7ff" font-size="12">• Q8.12 Fixed-Point Converter: round(x × 4096) &amp; 0xFFFFF</text>
+  <text x="650" y="250" fill="#e0e7ff" font-size="12">• PYNQ MMIO Register Engine (/dev/mem mapping)</text>
+  <text x="650" y="270" fill="#e0e7ff" font-size="12">• Control Sequencing: Frame pulse, valid strobe, status poll</text>
+  <text x="650" y="295" fill="#fda4af" font-size="11" font-style="italic">Transport / Driver Layer Tax: ~900 µs</text>
+
+  <!-- Bus Interconnect Line -->
+  <line x1="830" y1="320" x2="830" y2="365" stroke="#38bdf8" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="840" y="348" fill="#38bdf8" font-size="11" font-weight="bold">AXI4-Lite GP Interconnect (0x4000_0000)</text>
+
+  <!-- PL: Programmable Logic -->
+  <rect x="630" y="365" width="400" height="385" rx="10" fill="url(#fpgaGrad)" stroke="#10b981" stroke-width="2"/>
+  <text x="650" y="395" fill="#34d399" font-size="15" font-weight="bold">Programmable Logic (Artix-7 Core @ 100 MHz)</text>
+
+  <!-- Sub-block: AXI Registers -->
+  <rect x="650" y="415" width="360" height="95" rx="8" fill="#064e3b" stroke="#059669" stroke-width="1.2"/>
+  <text x="665" y="440" fill="#a7f3d0" font-size="13" font-weight="bold">aei_axi_wrapper_0 (Register Bank)</text>
+  <text x="665" y="460" fill="#ecfdf5" font-size="11">• 0x000: Control (start, meas_valid, clear_sticky)</text>
+  <text x="665" y="478" fill="#ecfdf5" font-size="11">• 0x004: Status (sticky_frame_done, collision_done)</text>
+  <text x="665" y="496" fill="#ecfdf5" font-size="11">• 0x00C / 0x010 / 0x014 / 0x018: Horizon, Thresh², X, Y</text>
+
+  <!-- Sub-block: RTL Pipeline -->
+  <rect x="650" y="525" width="360" height="110" rx="8" fill="#064e3b" stroke="#059669" stroke-width="1.2"/>
+  <text x="665" y="550" fill="#a7f3d0" font-size="13" font-weight="bold">AEI Pipeline Compute Core</text>
+  <text x="665" y="572" fill="#ecfdf5" font-size="11">• 8-Target Multi-Target Sequencer State Machine</text>
+  <text x="665" y="590" fill="#ecfdf5" font-size="11">• Pipelined Q8.12 Fixed-Point Kalman Predict / Update</text>
+  <text x="665" y="608" fill="#ecfdf5" font-size="11">• Pairwise Collision Evaluator: (Δx)² + (Δy)² ≤ d_thresh²</text>
+  <text x="665" y="626" fill="#6ee7b7" font-size="11" font-weight="bold">→ Pure RTL Core Execution: ~15 to 25 µs</text>
+
+  <!-- Sub-block: Output Matrix -->
+  <rect x="650" y="650" width="360" height="80" rx="8" fill="#064e3b" stroke="#059669" stroke-width="1.2"/>
+  <text x="665" y="675" fill="#a7f3d0" font-size="13" font-weight="bold">8×8 Collision Matrix RAM (0x400–0x47C)</text>
+  <text x="665" y="695" fill="#ecfdf5" font-size="11">• Verified Status: 0x0000003A (Sticky Flags Active)</text>
+  <text x="665" y="713" fill="#ecfdf5" font-size="11">• Symmetric Pairwise Hazard Verification (T0↔T1, T2↔T7)</text>
+</svg>
