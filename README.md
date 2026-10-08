@@ -3,7 +3,7 @@
 <p>Team Name</p>
 <p>PYNQ Lips</p>
 
-<p>Team Members:-</p>
+<p>Team Members:</p>
 <p>
 1. Aratrik Tewari (25BEI0045) (Team Leader)<br>
 2. Souhardya Banerjee (25BEI0006)<br>
