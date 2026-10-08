@@ -1,0 +1,91 @@
+`timescale 1ns / 1ps
+// Bit-exact RTL verification against data/test_vectors/vectors.csv.
+// Run from the repository root:
+//   iverilog -g2012 -o build_tb hardware/sim/tb_sigmoid_pwl.v hardware/src/core/sigmoid_pwl.v
+//   vvp build_tb
+module tb_sigmoid_pwl;
+    localparam integer MAX_VECTORS = 256;
+    reg clk;
+    reg rst_n;
+    reg signed [15:0] din_q4_12;
+    reg valid_in;
+    wire signed [15:0] dout_q4_12;
+    wire valid_out;
+    reg [15:0] din_arr [0:MAX_VECTORS-1];
+    reg [15:0] dout_arr [0:MAX_VECTORS-1];
+    integer n_vectors, sent, received, errors, fd, scan_status;
+    reg [8*64-1:0] header_line;
+    real ignored_x_float;
+
+    sigmoid_pwl dut (
+        .clk(clk), .rst_n(rst_n),
+        .din_q4_12(din_q4_12), .valid_in(valid_in),
+        .dout_q4_12(dout_q4_12), .valid_out(valid_out)
+    );
+
+    always #5 clk = ~clk; // 100 MHz
+
+    // Check independently of input driving to validate pipeline alignment.
+    always @(posedge clk) begin
+        #1;
+        if (rst_n && valid_out) begin
+            if (received >= n_vectors) begin
+                errors = errors + 1;
+                $display("ERROR: unexpected output %h", dout_q4_12);
+            end else if (dout_q4_12 !== dout_arr[received]) begin
+                errors = errors + 1;
+                $display("MISMATCH #%0d: expected=%h got=%h", received,
+                         dout_arr[received], dout_q4_12);
+            end
+            received = received + 1;
+        end
+    end
+
+    integer i;
+
+    initial begin
+        // Initialize arrays to 0 so they don't show up as 'X' (red) in waveforms
+        for (i = 0; i < MAX_VECTORS; i = i + 1) begin
+            din_arr[i] = 16'd0;
+            dout_arr[i] = 16'd0;
+        end
+
+        clk = 1'b0; rst_n = 1'b0; din_q4_12 = 16'd0; valid_in = 1'b0;
+        sent = 0; received = 0; errors = 0; n_vectors = 0;
+        fd = $fopen("vectors.txt", "r");
+        if (fd == 0) begin
+            $display("ERROR: vectors.txt not found; check Vivado Simulation Sources.");
+            $finish;
+        end
+        scan_status = $fgets(header_line, fd); // Skip CSV header.
+        while (!$feof(fd) && n_vectors < MAX_VECTORS) begin
+            scan_status = $fscanf(fd, "%f,%h,%h\n", ignored_x_float,
+                                  din_arr[n_vectors], dout_arr[n_vectors]);
+            if (scan_status == 3) n_vectors = n_vectors + 1;
+        end
+        $fclose(fd);
+        if (n_vectors == 0) begin
+            $display("ERROR: no vectors were loaded.");
+            $finish;
+        end
+        $display("Loaded %0d test vectors", n_vectors);
+
+        repeat (3) @(negedge clk);
+        rst_n = 1'b1;
+        // One vector every cycle also tests the pipeline's throughput.
+        for (sent = 0; sent < n_vectors; sent = sent + 1) begin
+            @(negedge clk);
+            din_q4_12 = din_arr[sent];
+            valid_in = 1'b1;
+        end
+        @(negedge clk);
+        valid_in = 1'b0;
+        din_q4_12 = 16'd0;
+
+        wait (received == n_vectors);
+        #2;
+        $display("Checked %0d vectors, %0d mismatches", received, errors);
+        if (errors == 0) $display("PASS"); else $display("FAIL");
+        $finish;
+    end
+endmodule
