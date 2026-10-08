@@ -1,23 +1,23 @@
 <h3><u>Team Information</u></h3>
 
-<p>Team Name</p>
+<p>Team Name:</p>
 <p>PYNQ Lips</p>
 
 <p>Team Members:</p>
 <p>
-1. Aratrik Tewari (25BEI0045) (Team Leader)<br>
-2. Souhardya Banerjee (25BEI0006)<br>
-3. Akash Mansingh (25BEI0024)
+1. Aratrik Tewari (Team Leader)<br>
+2. Souhardya Banerjee<br>
+3. Akash Mansingh
 </p>
 
-<p>Registration Numbers</p>
-<p>25BEI0045, 25BEI0006, 25BEI0024</p>
+<p>Registration Numbers:</p>
+<p>25BEI0045, 25BEI0006, 25BEI0024 (respectively)</p>
 
-<p>Selected FPGA Board</p>
+<p>Selected FPGA Board:</p>
 <p>PYNQ-Z2 Development Board (TUL)</p>
 
 
-<h3><u>Project Summary</u></h3>
+<h3><u>Project Summary:</u></h3>
 
 <p>Provide a brief description of all five experiments.</p>
 
@@ -37,7 +37,7 @@
 <p>Accelerated Edge Intelligence Engine for Multi-Target Tracking and Collision Prediction</p>
 
 
-<p><b>FPGA Board Used</b></p>
+<p><b>FPGA Board Used:</b></p>
 
 <p>Board:</p>
 <p>PYNQ-Z2 Development Board (TUL)</p>
