@@ -1,29 +1,73 @@
 `timescale 1ns/1ps
 
-// top_module.v
-// Top-level integration for the Digital Door Lock on PYNQ-Z2.
-// Integrates physical hardware, 1-cycle edge-pulsed PS injection, and active-high RGB mappings.
+// ============================================================================
+// Module Name:   top_module
+// Project:       Zynq-7000 Digital Door Lock System (PYNQ-Z2)
+// Target Device: AMD Xilinx Zynq-7000 SoC (XC7Z020-1CLG400C)
+//
+// Description:
+//   Top-level hardware integration and arbitration module for the digital
+//   door lock architecture. Integrates the Zynq Processing System (PS) with
+//   Programmable Logic (PL) resources, mediating dual-source authentication
+//   inputs (physical 4x4 matrix keypad vs. AXI GPIO software injection),
+//   driving visual feedback, and controlling servo motor actuation.
+//
+// Architecture & Inter-Module Hierarchy:
+//   - top_module
+//       ├── keypad_scanner (u_keypad)   : 1 kHz matrix scan with contact debounce
+//       │     └── debouncer             : 4x parallel column noise rejection filters
+//       ├── door_lock_fsm  (u_fsm)      : Core 4-digit security state machine
+//       └── pwm_generator  (u_pwm)      : 50 Hz PWM servo deadbolt controller
+//
+// Key Engineering Features:
+//   1. Asynchronous Reset Conditioning: Double-register flip-flop synchronizer
+//      protects the 125 MHz clock domain from metastability on BTN0 release.
+//   2. PS-to-PL Strobe Conditioning: 3-stage shift-register synchronizer and
+//      rising-edge detector converts millisecond-scale AXI software writes into
+//      an exact 1-clock-cycle pulse, preventing multi-cycle FSM oversampling.
+//   3. Hardware Multiplexing: Arbitrates between physical matrix scanning and
+//      Jupyter/Python software key injection without bus contention.
+//   4. Diagnostics & Telemetry: Aggregates real-time PL security flags and
+//      LED states into an AXI GPIO readback bus for live OS monitoring.
+// ============================================================================
 
 module top_module #(
-    parameter UNLOCK_HOLD_CYCLES = 30'd625_000_000 // 5s @ 125MHz default
+    // Hold interval parameter passed to FSM: 5.0 seconds at 125 MHz system clock
+    parameter UNLOCK_HOLD_CYCLES = 30'd625_000_000
 ) (
-    input  wire clk,          
-    input  wire btn_rst,      
+    // Global Clock & Reset
+    input  wire        clk,            // 125 MHz fabric clock sourced from Zynq PS (FCLK_CLK0)
+    input  wire        btn_rst,        // Asynchronous active-high manual reset (BTN0, Pin D19)
 
-    // Physical Hardware I/O
-    output wire [3:0] kp_row,
-    input  wire [3:0] kp_col,
-    output wire servo_pwm,
-    output wire led_r,
-    output wire led_g,
-    output wire led_b,
+    // Physical Hardware Interface (Pmod A - Keypad Matrix)
+    output wire [3:0]  kp_row,         // Walking-zero active-low row drive pins (JA1_P..JA4_P)
+    input  wire [3:0]  kp_col,         // Active-low column return pins with pull-ups (JA1_N..JA4_N)
 
-    // Zynq PS AXI GPIO Ports
-    input  wire [4:0] ps_key_inject, // [4]: python_key_valid, [3:0]: python_key_data
-    output wire [3:0] ps_status_out  // [3]: alarm_sig, [2:0]: rgb_status
+    // Physical Actuator Interface (Pmod B - Servo Motor)
+    output wire        servo_pwm,      // 50 Hz PWM control output for SG90 servo (Pin W14)
+
+    // Physical Visual Interface (Onboard RGB LED LD4)
+    output wire        led_r,          // Red channel cathode driver (Pin N15)
+    output wire        led_g,          // Green channel cathode driver (Pin G17)
+    output wire        led_b,          // Blue channel cathode driver (Pin L15)
+
+    // Zynq-7000 PS AXI4-Lite GPIO Bridges
+    // axi_gpio_1 [Output channel]: Software keystroke injection register
+    //   ps_key_inject[4]   = Strobe enable (sys_key_valid trigger)
+    //   ps_key_inject[3:0] = Injected hexadecimal key code (0x0 to 0xF)
+    input  wire [4:0]  ps_key_inject,
+
+    // axi_gpio_0 [Input channel]: Real-time hardware status and telemetry register
+    //   ps_status_out[3]   = Alarm tamper lockout active flag
+    //   ps_status_out[2:0] = Visual state indicators ([2]=Red, [1]=Green, [0]=Blue)
+    output wire [3:0]  ps_status_out
 );
 
-    // Synchronize asynchronous push-button reset to system clock
+    // ------------------------------------------------------------------------
+    // Reset Domain Synchronization
+    // ------------------------------------------------------------------------
+    // Conditions the raw asynchronous BTN0 push-button input through a 2-stage
+    // synchronizer to prevent metastability hazards across internal FSM registers.
     reg rst_sync0, rst_sync1;
     always @(posedge clk) begin
         rst_sync0 <= btn_rst;
@@ -31,10 +75,13 @@ module top_module #(
     end
     wire rst = rst_sync1;
 
-    // -------------------------------------------------------------
-    // PS Key Injection Synchronizer & 1-Cycle Rising Edge Detector
-    // Resolves software oversampling by generating an exact 1-cycle pulse
-    // -------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // PS Software Injection: Synchronizer, Latch & 1-Cycle Edge Detector
+    // ------------------------------------------------------------------------
+    // AXI bus writes from Python/Linux hold the valid line high for thousands
+    // of 125 MHz clock cycles. This circuit detects the 0 -> 1 software transition
+    // and produces a clean, single-cycle pulse (ps_key_pulse) while safely latching
+    // the target key nibble.
     reg [2:0] ps_valid_sync;
     reg [3:0] ps_data_latched;
 
@@ -43,23 +90,33 @@ module top_module #(
             ps_valid_sync   <= 3'b000;
             ps_data_latched <= 4'h0;
         end else begin
+            // 3-stage shift register for metastability hardening and edge sampling
             ps_valid_sync <= {ps_valid_sync[1:0], ps_key_inject[4]};
+
+            // Latch 4-bit data on the arrival of the software injection request
             if (ps_key_inject[4]) begin
                 ps_data_latched <= ps_key_inject[3:0];
             end
         end
     end
 
-    // Produces a single clock cycle pulse on software 0 -> 1 transition
+    // Single 8 ns clock pulse asserted exclusively on the rising edge of software valid
     wire ps_key_pulse = (ps_valid_sync[1] && !ps_valid_sync[2]);
 
-    wire       hw_key_valid;
-    wire [3:0] hw_key_data;
-    wire       unlock_sig;
-    wire [2:0] rgb_status; // [2]=Red, [1]=Green, [0]=Blue
-    wire       alarm_sig;
+    // ------------------------------------------------------------------------
+    // Subsystem Interconnect Signals
+    // ------------------------------------------------------------------------
+    wire       hw_key_valid;  // Single-cycle strobe from physical matrix scanner
+    wire [3:0] hw_key_data;   // Decoded nibble from physical matrix scanner
+    wire       unlock_sig;    // Binary access granted flag from door_lock_fsm
+    wire [2:0] rgb_status;    // Raw FSM state color vector: [2]=Red, [1]=Green, [0]=Blue
+    wire       alarm_sig;     // Persistent security lockout flag from door_lock_fsm
 
-    // Physical matrix keypad scanner
+    // ------------------------------------------------------------------------
+    // Peripheral Instance: Physical 4x4 Matrix Keypad Scanner
+    // ------------------------------------------------------------------------
+    // Continuously scans Pmod A row/column lines, filters contact chatter,
+    // and outputs single-cycle valid strobes upon switch closure.
     keypad_scanner u_keypad (
         .clk       (clk),
         .rst       (rst),
@@ -69,56 +126,8 @@ module top_module #(
         .key_data  (hw_key_data)
     );
 
-    // Multiplexer: Combine keypad and software injection
-    wire sys_key_valid      = hw_key_valid | ps_key_pulse;
-    wire [3:0] sys_key_data = ps_key_pulse ? ps_data_latched : hw_key_data;
-
-    // Core Door Lock FSM
-    door_lock_fsm #(
-        .UNLOCK_HOLD_CYCLES(UNLOCK_HOLD_CYCLES)
-    ) u_fsm (
-        .clk        (clk),
-        .rst        (rst),
-        .key_valid  (sys_key_valid),
-        .key_data   (sys_key_data),
-        .unlock_sig (unlock_sig),
-        .rgb_status (rgb_status),
-        .alarm_sig  (alarm_sig)
-    );
-
-    // 50Hz PWM Servo Generator
-    pwm_generator u_pwm (
-        .clk        (clk),
-        .rst        (rst),
-        .unlock_sig (unlock_sig),
-        .servo_pwm  (servo_pwm)
-    );
-
-    // Route PL status out to Processing System AXI GPIO
-    assign ps_status_out = {alarm_sig, rgb_status};
-
-    // Flashing circuit for alarm (~2Hz)
-    reg [26:0] flash_cnt;
-    reg        flash_bit;
-    always @(posedge clk) begin
-        if (rst) begin
-            flash_cnt <= 27'd0;
-            flash_bit <= 1'b0;
-        end else if (flash_cnt >= 27'd62_500_000) begin 
-            flash_cnt <= 27'd0;
-            flash_bit <= ~flash_bit;
-        end else begin
-            flash_cnt <= flash_cnt + 27'd1;
-        end
-    end
-
-    // Selected RGB bit vector:
-    // [2] = Red, [1] = Green, [0] = Blue
-    wire [2:0] active_rgb = alarm_sig ? {flash_bit, flash_bit, flash_bit} : rgb_status;
-
-    // Active-high driving: 1 = ON, 0 = OFF (fixes inverted polarity and additive color mixing)
-    assign led_r = active_rgb[2]; // Bit 2 -> Red Pin (N15)
-    assign led_g = active_rgb[1]; // Bit 1 -> Green Pin (G17)
-    assign led_b = active_rgb[0]; // Bit 0 -> Blue Pin (L15)
-
-endmodule
+    // ------------------------------------------------------------------------
+    // Keystroke Arbitration & Multiplexing
+    // ------------------------------------------------------------------------
+    // Merges physical matrix scanner strobes with software AXI injection pulses.
+    // Software pulse takes priority
