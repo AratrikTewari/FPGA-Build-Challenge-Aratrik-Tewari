@@ -1,9 +1,23 @@
 `timescale 1ns / 1ps
+
+// ============================================================================
+// Module:        sigmoid_pwl
+// Project:       FPGA Build Challenge - Experiment 3
+// Target Device: AMD Xilinx Zynq-7000 SoC
 //
-// Pipelined Q4.12 piecewise-linear sigmoid core.
-// Bit-exact contract: model/fixed_point_model.py::plan_pwl_fixed.
-// Latency: valid_in to valid_out = 2 rising clock edges.
+// System Context & Top-Level Integration:
+//   This module implements a pipelined Q4.12 piecewise-linear sigmoid activation
+//   function core. It computes an approximate sigmoid function suitable for 
+//   hardware neural network inference, balancing area, speed, and accuracy.
 //
+// Architectural Hierarchy:
+//   1. Input Stage: Receives valid input data (din_q4_12) with a valid signal.
+//   2. PWL Computation: Uses constants and right shifts to calculate piecewise 
+//      linear approximations over multiple threshold segments.
+//   3. Pipeline Registers: Maintains high throughput with a valid_in to valid_out
+//      latency of 2 rising clock edges.
+// ============================================================================
+
 module sigmoid_pwl (
     input  wire              clk,
     input  wire              rst_n,
@@ -79,3 +93,4 @@ module sigmoid_pwl (
     end
 
 endmodule
+

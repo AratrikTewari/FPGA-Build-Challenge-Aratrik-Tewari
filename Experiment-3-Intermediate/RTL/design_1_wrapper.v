@@ -8,7 +8,24 @@
 //Design      : design_1_wrapper
 //Purpose     : IP block netlist
 //--------------------------------------------------------------------------------
-`timescale 1 ps / 1 ps
+`timescale 1ns / 1ps
+
+// ============================================================================
+// Module:        design_1_wrapper
+// Project:       FPGA Build Challenge - Experiment 3
+// Target Device: AMD Xilinx Zynq-7000 SoC
+//
+// System Context & Top-Level Integration:
+//   This module serves as the Vivado block design wrapper. It instantiates the
+//   processing system and the custom AXI IPs, connecting them to external
+//   DDR and FIXED_IO ports.
+//
+// Architectural Hierarchy:
+//   1. Processing System: Zynq ARM processor system.
+//   2. Interconnect: AXI interconnect connecting PS to PL components.
+//   3. PL Peripherals: Custom AXI Lite wrapper and Sigmoid core.
+// ============================================================================
+
 
 module design_1_wrapper
    (DDR_addr,
@@ -99,3 +116,4 @@ module design_1_wrapper
         .FIXED_IO_ps_porb(FIXED_IO_ps_porb),
         .FIXED_IO_ps_srstb(FIXED_IO_ps_srstb));
 endmodule
+

@@ -1,5 +1,20 @@
 `timescale 1ns / 1ps
-// AXI4-Lite wrapper for the Q4.12 sigmoid_pwl core.
+
+// ============================================================================
+// Module:        axi_lite_wrapper
+// Project:       FPGA Build Challenge - Experiment 3
+// Target Device: AMD Xilinx Zynq-7000 SoC
+//
+// System Context & Top-Level Integration:
+//   This module serves as the AXI4-Lite wrapper for the Q4.12 sigmoid_pwl core.
+//   It allows a processing system (like Zynq ARM) to interface with the sigmoid
+//   core through standard AXI memory-mapped registers.
+//
+// Architectural Hierarchy:
+//   1. Register Interface: Handles read/write operations over AXI4-Lite.
+//   2. Sigmoid Core Wrapper: Connects internal AXI registers to the valid_in, 
+//      din, dout, and valid_out signals of the pipelined sigmoid_pwl core.
+// ============================================================================
 module axi_lite_wrapper #(
     parameter integer C_S_AXI_DATA_WIDTH = 32,
     parameter integer C_S_AXI_ADDR_WIDTH = 4
@@ -117,3 +132,4 @@ module axi_lite_wrapper #(
         end
     end
 endmodule
+
