@@ -1,18 +1,17 @@
 `timescale 1ns / 1ps
 
 // ============================================================================
-// Module:        system_corner_regression
+// Module:        system_corner_regression.sv
 // Project:       FPGA Build Challenge - Experiment 5 (Advanced)
 // Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 //
 // System Context & Top-Level Integration:
-//   Advanced FPGA architecture implementation featuring Kalman filters,
-//   collision detection, and multi-target tracking.
+//   Specialized regression suite to test boundary conditions, pipeline backpressure, arithmetic overflows, and matrix singularity exceptions.
 //
 // Architectural Hierarchy:
-//   Part of the Experiment 5 RTL / Simulation / Testbench ecosystem.
+//   - Instantiated within the broader Experiment 5 RTL/Verification ecosystem.
+//   - Synthesizable for PL (Programmable Logic) deployment unless marked as TB.
 // ============================================================================
-
 module aei_system_corner_regression #(
     parameter integer W = 20,
     parameter integer F = 12,
