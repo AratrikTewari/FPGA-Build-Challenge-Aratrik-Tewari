@@ -1,18 +1,17 @@
 `timescale 1ns / 1ps
 
 // ============================================================================
-// Module:        tb_kh_matrix
+// Module:        tb_kh_matrix.sv
 // Project:       FPGA Build Challenge - Experiment 5 (Advanced)
 // Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 //
 // System Context & Top-Level Integration:
-//   Advanced FPGA architecture implementation featuring Kalman filters,
-//   collision detection, and multi-target tracking.
+//   Unit testbench for the intermediate K*H matrix multiplication block.
 //
 // Architectural Hierarchy:
-//   Part of the Experiment 5 RTL / Simulation / Testbench ecosystem.
+//   - Instantiated within the broader Experiment 5 RTL/Verification ecosystem.
+//   - Synthesizable for PL (Programmable Logic) deployment unless marked as TB.
 // ============================================================================
-
 module tb_kh_matrix;
 
     localparam integer W = 20;
