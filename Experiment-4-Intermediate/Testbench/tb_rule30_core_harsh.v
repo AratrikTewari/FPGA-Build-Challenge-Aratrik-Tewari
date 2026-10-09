@@ -1,3 +1,18 @@
+`timescale 1ns / 1ps
+
+// ============================================================================
+// Module:        tb_rule30_core_harsh
+// Project:       FPGA Build Challenge - Experiment 4
+// Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+//
+// System Context & Top-Level Integration:
+//   This module is part of the Rule 30 Cellular Automaton implementation,
+//   responsible for generating pseudo-random sequences.
+//
+// Architectural Hierarchy:
+//   Part of the Experiment 4 RTL / Simulation / Testbench ecosystem.
+// ============================================================================
+
 // ============================================================================
 // tb_rule30_core_harsh.v
 // Multi-seed regression for the Rule 30 core with 3 extra seeds and 64
@@ -5,7 +20,6 @@
 // 32-generation check and fails loudly on the first mismatch with the exact
 // generation number.
 // ============================================================================
-`timescale 1ns/1ps
 
 module tb_rule30_core_harsh;
 
