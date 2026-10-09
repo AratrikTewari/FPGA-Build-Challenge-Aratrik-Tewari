@@ -1,3 +1,12 @@
+# ============================================================================
+# Constraints:    pynq_z2.xdc
+# Project:       FPGA Build Challenge - Experiment 4
+# Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+#
+# System Context & Top-Level Integration:
+#   Physical and timing constraints for the Rule 30 implementation.
+# ============================================================================
+
 # pynq_z2.xdc
 # The Rule 30 PRNG IP itself is AXI-only (PS<->PL over the interconnect) and
 # needs NO external pin constraints to function. Uncomment below only if you
