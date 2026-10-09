@@ -1,10 +1,24 @@
+`timescale 1ns / 1ps
+
+// ============================================================================
+// Module:        tb_rule30_axi_bfm
+// Project:       FPGA Build Challenge - Experiment 4
+// Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+//
+// System Context & Top-Level Integration:
+//   This module is part of the Rule 30 Cellular Automaton implementation,
+//   responsible for generating pseudo-random sequences.
+//
+// Architectural Hierarchy:
+//   Part of the Experiment 4 RTL / Simulation / Testbench ecosystem.
+// ============================================================================
+
 // ============================================================================
 // tb_rule30_axi_bfm.v
 // AXI4-Lite bus-functional-model testbench for rule30_axi_v1_0_S00_AXI.v.
 // Exercises the actual register map by driving AWADDR/WDATA and ARADDR
 // handshakes directly instead of bypassing the bus and instantiating the core.
 // ============================================================================
-`timescale 1ns/1ps
 
 module tb_rule30_axi_bfm;
 
