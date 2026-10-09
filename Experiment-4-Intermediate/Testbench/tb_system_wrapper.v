@@ -1,3 +1,18 @@
+`timescale 1ns / 1ps
+
+// ============================================================================
+// Module:        tb_system_wrapper
+// Project:       FPGA Build Challenge - Experiment 4
+// Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+//
+// System Context & Top-Level Integration:
+//   This module is part of the Rule 30 Cellular Automaton implementation,
+//   responsible for generating pseudo-random sequences.
+//
+// Architectural Hierarchy:
+//   Part of the Experiment 4 RTL / Simulation / Testbench ecosystem.
+// ============================================================================
+
 // ============================================================================
 // tb_system_wrapper.v
 // System-level testbench for the Rule 30 PRNG block design.
@@ -11,7 +26,6 @@
 //   - Post-Implementation Functional
 //   - Post-Implementation Timing
 // ============================================================================
-`timescale 1ns / 1ps
 
 module tb_system_wrapper;
 
