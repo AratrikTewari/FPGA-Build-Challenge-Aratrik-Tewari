@@ -1,18 +1,17 @@
 `timescale 1ns / 1ps
 
 // ============================================================================
-// Module:        tb_aei_engine_reference
+// Module:        tb_aei_engine_reference.sv
 // Project:       FPGA Build Challenge - Experiment 5 (Advanced)
 // Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 //
 // System Context & Top-Level Integration:
-//   Advanced FPGA architecture implementation featuring Kalman filters,
-//   collision detection, and multi-target tracking.
+//   Golden reference testbench for the AEI engine, comparing RTL outputs cycle-by-cycle against a bit-accurate behavioral model.
 //
 // Architectural Hierarchy:
-//   Part of the Experiment 5 RTL / Simulation / Testbench ecosystem.
+//   - Instantiated within the broader Experiment 5 RTL/Verification ecosystem.
+//   - Synthesizable for PL (Programmable Logic) deployment unless marked as TB.
 // ============================================================================
-
 module tb_aei_engine_reference;
 
     localparam integer W = 20;
