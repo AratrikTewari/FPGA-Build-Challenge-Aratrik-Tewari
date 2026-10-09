@@ -4,10 +4,12 @@
 # Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 #
 # System Context & Top-Level Integration:
-#   This Python script is part of the Advanced tracking ecosystem,
-#   used for reference modeling, tracking, or generating test vectors.
+#   Jupyter/Python integration script for the PYNQ framework. Allocates contiguous memory buffers, configures the AEI IP, and visualizes live target tracks.
+#
+# Architectural Hierarchy:
+#   - Part of the Software/Simulation stack for the Advanced Kalman Filter project.
+#   - Interfaces with the Zynq Processing System (PS) via AXI memory-mapped I/O.
 # ============================================================================
-
 """
 Live Multi-Target Sensor + Kalman Tracking + PYNQ-Z2 Link
 """
