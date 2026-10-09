@@ -1,3 +1,19 @@
+# ============================================================================
+# Module:        fixed_point_model.py
+# Project:       FPGA Build Challenge - Experiment 3
+# Target Device: AMD Xilinx Zynq-7000 SoC
+#
+# System Context & Top-Level Integration:
+#   This Python module serves as the fixed-point reference model for the 
+#   Q4.12 piecewise-linear (PWL) sigmoid core. It validates mathematical 
+#   correctness before RTL implementation.
+#
+# Architectural Hierarchy:
+#   1. Fixed-Point Conversion: Utilities for floating-point to Q-format.
+#   2. PWL Approximation Model: Python equivalent of the Verilog implementation,
+#      featuring bit-exact logic mapping.
+#   3. Test Vector Generation: Outputs deterministic stimuli for RTL testbenches.
+# ============================================================================
 """
 STEP 2 — Fixed-point / hardware-shape model.
 
@@ -80,3 +96,4 @@ if __name__ == "__main__":
         print("WARNING: error exceeds 0.02; add PWL segments for a more believable demo.")
     else:
         print("PASS: error is at or below 0.02, suitable for a visual sigmoid demo.")
+
