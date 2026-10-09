@@ -1,3 +1,13 @@
+# ============================================================================
+# Module:        hw_server.py
+# Project:       FPGA Build Challenge - Experiment 5 (Advanced)
+# Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+#
+# System Context & Top-Level Integration:
+#   This Python script is part of the Advanced tracking ecosystem,
+#   used for reference modeling, tracking, or generating test vectors.
+# ============================================================================
+
 import socket
 import json
 import time
