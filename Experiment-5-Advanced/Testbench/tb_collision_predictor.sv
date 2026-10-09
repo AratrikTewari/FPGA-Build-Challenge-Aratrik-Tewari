@@ -1,18 +1,17 @@
 `timescale 1ns / 1ps
 
 // ============================================================================
-// Module:        tb_collision_predictor
+// Module:        tb_collision_predictor.sv
 // Project:       FPGA Build Challenge - Experiment 5 (Advanced)
 // Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 //
 // System Context & Top-Level Integration:
-//   Advanced FPGA architecture implementation featuring Kalman filters,
-//   collision detection, and multi-target tracking.
+//   Verifies the forward-time projection logic of the collision detection system, predicting TTI (Time to Intersection).
 //
 // Architectural Hierarchy:
-//   Part of the Experiment 5 RTL / Simulation / Testbench ecosystem.
+//   - Instantiated within the broader Experiment 5 RTL/Verification ecosystem.
+//   - Synthesizable for PL (Programmable Logic) deployment unless marked as TB.
 // ============================================================================
-
 module tb_collision_predictor;
     logic clk=0, rst=1, start=0;
     
