@@ -1,18 +1,17 @@
 `timescale 1ns / 1ps
 
 // ============================================================================
-// Module:        tb_kalman_engine
+// Module:        tb_kalman_engine.sv
 // Project:       FPGA Build Challenge - Experiment 5 (Advanced)
 // Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 //
 // System Context & Top-Level Integration:
-//   Advanced FPGA architecture implementation featuring Kalman filters,
-//   collision detection, and multi-target tracking.
+//   Testbench for the consolidated Kalman Filter engine, executing full Predict-Update cycles over noisy stimulus data.
 //
 // Architectural Hierarchy:
-//   Part of the Experiment 5 RTL / Simulation / Testbench ecosystem.
+//   - Instantiated within the broader Experiment 5 RTL/Verification ecosystem.
+//   - Synthesizable for PL (Programmable Logic) deployment unless marked as TB.
 // ============================================================================
-
 module tb_kalman_engine;
 
     localparam integer W = 20;
