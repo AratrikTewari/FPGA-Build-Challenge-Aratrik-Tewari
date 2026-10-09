@@ -1,31 +1,82 @@
-## pynqz2_top.xdc
-## Pin constraints for design_1_wrapper / top_module on PYNQ-Z2 (xc7z020clg400-1)
-## Reference: PYNQ-Z2 Master XDC (v1.0)
+## ============================================================================
+## File Name:    pynqz2_top.xdc
+## Project:      Zynq-7000 Digital Door Lock System
+## Target Board: TUL PYNQ-Z2 Development Board
+## Target SoC:   AMD Xilinx Zynq-7000 SoC (XC7Z020-1CLG400C)
+## Top Module:   design_1_wrapper / top_module
+##
+## Description:
+##   Master Physical and Timing Constraints File. Defines physical package pin
+##   assignments, I/O voltage signaling standards (LVCMOS33), internal pull-up
+##   resistor configurations, and clock domain specifications across all PL
+##   interfaces including Pmod peripherals, status LEDs, and system control pins.
+##
+## References:
+##   - PYNQ-Z2 User Hardware Reference Manual (v1.0)
+##   - TUL PYNQ-Z2 Master XDC Repository (v1.0)
+## ============================================================================
 
-## ---- Clock: MANAGED INTERNALLY BY ZYNQ PS (FCLK_CLK0) ----
-## Do not un-comment external H16 clock constraints when using the Zynq Processing System.
+## ----------------------------------------------------------------------------
+## Primary System Clock Constraint
+## ----------------------------------------------------------------------------
+## NOTE ON ARCHITECTURE:
+## When utilizing the Zynq-7000 Processing System (PS7) block design, the fabric
+## clock (FCLK_CLK0 @ 125 MHz) is generated internally by the PS Phase-Locked
+## Loop (PLL) and routed directly across the AXI interconnect to the PL.
+## Timing constraints (period = 8.000 ns) are automatically synthesized and 
+## propagated by the Vivado IP integrator via the PS block design automation.
+##
+## Un-commenting the external crystal oscillator constraints below is ONLY required
+## for standalone pure-PL RTL flows lacking the Zynq Processing System wrapper:
+##
 ## set_property -dict {PACKAGE_PIN H16 IOSTANDARD LVCMOS33} [get_ports clk]
 ## create_clock -period 8.000 -name sys_clk_pin -waveform {0 4} [get_ports clk]
 
-## ---- Reset: BTN0 ----
+## ----------------------------------------------------------------------------
+## System Control Inputs
+## ----------------------------------------------------------------------------
+## Onboard Push-Button 0 (BTN0):
+## Serves as the asynchronous active-high master system reset. Conditioned inside
+## top_module through a 2-stage flip-flop synchronizer to prevent metastability.
 set_property -dict {PACKAGE_PIN D19 IOSTANDARD LVCMOS33} [get_ports btn_rst]
 
-## ---- Keypad rows (outputs) -- Pmod A, JA1_P..JA4_P used as ROW0..ROW3 ----
-set_property -dict {PACKAGE_PIN Y18 IOSTANDARD LVCMOS33} [get_ports {kp_row[0]}]
-set_property -dict {PACKAGE_PIN Y16 IOSTANDARD LVCMOS33} [get_ports {kp_row[1]}]
-set_property -dict {PACKAGE_PIN U18 IOSTANDARD LVCMOS33} [get_ports {kp_row[2]}]
-set_property -dict {PACKAGE_PIN W18 IOSTANDARD LVCMOS33} [get_ports {kp_row[3]}]
+## ----------------------------------------------------------------------------
+## Peripheral Connector: Pmod A (4x4 Matrix Keypad Interface)
+## ----------------------------------------------------------------------------
+## Pmod A 2x6 Header Configuration:
+##   - Pins 1..4  (Top Row, JA1_P..JA4_P): Output drive pins for matrix rows.
+##   - Pins 7..10 (Bottom Row, JA1_N..JA4_N): Return input pins for matrix columns.
+##
+## Driving Philosophy:
+##   - Rows: Driven actively with a walking-zero ('0') pattern by keypad_scanner.
+##   - Columns: Integrated with on-chip pull-up resistors (PULLUP true) to hold
+##     unpressed lines at logic HIGH (3.3V) until pulled LOW by switch contact.
 
-## ---- Keypad cols (inputs, pull-ups enabled) -- Pmod A, JA1_N..JA4_N ----
-set_property -dict {PACKAGE_PIN Y19 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[0]}]
-set_property -dict {PACKAGE_PIN Y17 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[1]}]
-set_property -dict {PACKAGE_PIN U19 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[2]}]
-set_property -dict {PACKAGE_PIN W19 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[3]}]
+## Keypad Rows (Outputs from FPGA):
+set_property -dict {PACKAGE_PIN Y18 IOSTANDARD LVCMOS33} [get_ports {kp_row[0]}] ; # JA1_P (Pin 1)  -> ROW 0
+set_property -dict {PACKAGE_PIN Y16 IOSTANDARD LVCMOS33} [get_ports {kp_row[1]}] ; # JA2_P (Pin 2)  -> ROW 1
+set_property -dict {PACKAGE_PIN U18 IOSTANDARD LVCMOS33} [get_ports {kp_row[2]}] ; # JA3_P (Pin 3)  -> ROW 2
+set_property -dict {PACKAGE_PIN W18 IOSTANDARD LVCMOS33} [get_ports {kp_row[3]}] ; # JA4_P (Pin 4)  -> ROW 3
 
-## ---- Servo PWM -- Pmod B, JB1_P ----
-set_property -dict {PACKAGE_PIN W14 IOSTANDARD LVCMOS33} [get_ports servo_pwm]
+## Keypad Columns (Inputs to FPGA with internal pull-up termination):
+set_property -dict {PACKAGE_PIN Y19 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[0]}] ; # JA1_N (Pin 7)  -> COL 0
+set_property -dict {PACKAGE_PIN Y17 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[1]}] ; # JA2_N (Pin 8)  -> COL 1
+set_property -dict {PACKAGE_PIN U19 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[2]}] ; # JA3_N (Pin 9)  -> COL 2
+set_property -dict {PACKAGE_PIN W19 IOSTANDARD LVCMOS33 PULLUP true} [get_ports {kp_col[3]}] ; # JA4_N (Pin 10) -> COL 3
 
-## ---- Tri-color LED LD4 ----
-set_property -dict {PACKAGE_PIN N15 IOSTANDARD LVCMOS33} [get_ports led_r]
-set_property -dict {PACKAGE_PIN G17 IOSTANDARD LVCMOS33} [get_ports led_g]
-set_property -dict {PACKAGE_PIN L15 IOSTANDARD LVCMOS33} [get_ports led_b]
+## ----------------------------------------------------------------------------
+## Peripheral Connector: Pmod B (Servo Deadbolt Actuator Interface)
+## ----------------------------------------------------------------------------
+## Pmod B Pin 1 (JB1_P):
+## Outputs the 50 Hz PWM modulation signal generated by pwm_generator.v.
+## Drives hobby servo gate logic (e.g., TowerPro SG90 / MG90S) to actuate
+## the mechanical lock between 0° (locked, 1.0 ms) and 90° (unlocked, 2.0 ms).
+set_property -dict {PACKAGE_PIN W14 IOSTANDARD LVCMOS33} [get_ports servo_pwm] ; # JB1_P (Pin 1)
+
+## ----------------------------------------------------------------------------
+## Visual Telemetry: Onboard Tri-Color Status LED (LD4)
+## ----------------------------------------------------------------------------
+## Discrete RGB LED driven directly by top_module:
+##   - Active-High Logic: High ('1') turns LED channel ON; Low ('0') turns channel OFF.
+##   - LOCKED:   Red   channel active (N15 = 1, G17 = 0, L15 = 0)
+##
