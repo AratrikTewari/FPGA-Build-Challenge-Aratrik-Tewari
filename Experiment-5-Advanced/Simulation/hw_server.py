@@ -4,10 +4,12 @@
 # Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
 #
 # System Context & Top-Level Integration:
-#   This Python script is part of the Advanced tracking ecosystem,
-#   used for reference modeling, tracking, or generating test vectors.
+#   Python-based hardware server mimicking the FPGA memory map over Ethernet/UART. Used for hardware-in-the-loop (HIL) testing and data logging.
+#
+# Architectural Hierarchy:
+#   - Part of the Software/Simulation stack for the Advanced Kalman Filter project.
+#   - Interfaces with the Zynq Processing System (PS) via AXI memory-mapped I/O.
 # ============================================================================
-
 import socket
 import json
 import time
