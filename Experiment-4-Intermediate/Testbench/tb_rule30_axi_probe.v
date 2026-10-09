@@ -1,4 +1,18 @@
-`timescale 1ns/1ps
+`timescale 1ns / 1ps
+
+// ============================================================================
+// Module:        tb_rule30_axi_probe
+// Project:       FPGA Build Challenge - Experiment 4
+// Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+//
+// System Context & Top-Level Integration:
+//   This module is part of the Rule 30 Cellular Automaton implementation,
+//   responsible for generating pseudo-random sequences.
+//
+// Architectural Hierarchy:
+//   Part of the Experiment 4 RTL / Simulation / Testbench ecosystem.
+// ============================================================================
+
 module tb_rule30_axi_probe;
     localparam integer C_S_AXI_DATA_WIDTH = 32;
     localparam integer C_S_AXI_ADDR_WIDTH = 4;
