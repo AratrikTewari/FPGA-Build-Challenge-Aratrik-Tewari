@@ -1,3 +1,13 @@
+# ============================================================================
+# Module:        generate_harsh_vectors.py
+# Project:       FPGA Build Challenge - Experiment 4
+# Target Device: AMD Xilinx Zynq-7000 SoC (PYNQ-Z2)
+#
+# System Context & Top-Level Integration:
+#   This Python script is part of the Rule 30 Cellular Automaton ecosystem,
+#   used for reference modeling or generating test vectors.
+# ============================================================================
+
 from pathlib import Path
 
 
